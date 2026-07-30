@@ -310,7 +310,7 @@ export default function StatistiquesClientsPage() {
               <div className="mt-4 p-4 bg-muted/50 rounded-lg border border-muted">
                 <p className="text-sm text-muted-foreground">
                   🔒 <span className="font-medium">Bienvenue sur notre ERP</span> - 
-                  Kallel Tech Company
+                  CHIHA GSM
                 </p>
               </div>
             </div>

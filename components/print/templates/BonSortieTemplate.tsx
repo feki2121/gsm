@@ -10,9 +10,9 @@ interface BonSortieTemplateProps {
 
 const DEFAULT_COMPANY = {
   name: "KALLAL TECH COMPANY",
-  address: "01. Teniour chihia 3000 - SFAX",
-  phone: "25 535 035",
-  vat: "1860077 Q/A/M/000",
+  address: "RTE ELAIN KM3, SFAX",
+  phone: "24 807 784",
+  vat: "1677720 S/A/C/000",
 };
 
 const getMotifLabel = (motif: string): string => {
@@ -47,7 +47,7 @@ export const BonSortieTemplate: React.FC<BonSortieTemplateProps> = ({
       <div className="header">
         <div className="logo-container">
           <img 
-            src="/ktc.png" 
+            src="/chiha.jpeg" 
             alt="Logo" 
             className="logo-img" 
             onError={(e) => (e.target as HTMLImageElement).style.display = 'none'}

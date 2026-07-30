@@ -10,7 +10,7 @@ const _geistMono = Geist_Mono({ subsets: ["latin"] });
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: 'KALLEL TECH COMPANY KTC',
+  title: 'CHIHA GSM',
   description: 'Application de gestion pour magasin d\'électroménager',
   generator: 'v0.app',
   icons: {

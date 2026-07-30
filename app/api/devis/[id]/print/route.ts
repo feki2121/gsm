@@ -51,7 +51,7 @@
 //         {
 //           columns: [
 //             {
-//               text: 'KALLAL TECH COMPANY\nVente en Gros Produits Divers\n01. Teniour chihia 3000 - SFAX\nTél: 25 535 035\nT.V.A.: 1860077 Q/A/M/000',
+//               text: 'KALLAL TECH COMPANY\nVente en Gros Produits Divers\nRTE ELAIN KM3, SFAX\nTél: 24 807 784\nT.V.A.: 1677720 S/A/C/000',
 //               style: 'companyInfo'
 //             },
 //             {
@@ -184,7 +184,7 @@
 //         fontSize: 10
 //       },
 //       footer: (currentPage: number, pageCount: number) => ({
-//         text: `KALLAL TECH COMPANY - 01. Teniour chihia 3000 - SFAX - Tél: 25 535 035 | Page ${currentPage}/${pageCount}`,
+//         text: `KALLAL TECH COMPANY - RTE ELAIN KM3, SFAX - Tél: 24 807 784 | Page ${currentPage}/${pageCount}`,
 //         alignment: 'center',
 //         fontSize: 7,
 //         color: '#999',

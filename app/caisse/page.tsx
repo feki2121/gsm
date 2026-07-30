@@ -321,7 +321,7 @@ function buildTicketHtml(
 <div class="ticket-print">
   
   <div class="header">
-    <img src="/ktc.png" alt="Logo" class="logo-img" style="max-width: 8mm;" onerror="this.style.display='none'" />
+    <img src="/chiha.jpeg" alt="Logo" class="logo-img" style="max-width: 8mm;" onerror="this.style.display='none'" />
     <div class="title">KALLAL TECH COMPANY</div>
     <div class="date">${now}</div>
     <div class="period">${dateRange}</div>
@@ -595,7 +595,7 @@ function buildPrintHtml(
   <div>
     <div><b>KALLAL TECH COMPANY</b></div>
     <div style="font-size:11px;color:#666">
-      SFAX - Tél: 25 535 035
+      SFAX - Tél: 24 807 784
     </div>
   </div>
 

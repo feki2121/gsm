@@ -167,8 +167,8 @@ export default function TransfertDetailPage() {
     <body>
       <div class="print-container">
         <div class="header">
-          <div class="company-name">KALLEL TECH COMPANY</div>
-          <div class="company-details">01. Teniour chihia 3000 - SFAX | Tél: 25 535 035 | MF: 1860077 Q/A/M/000</div>
+          <div class="company-name">CHIHA GSM</div>
+          <div class="company-details">RTE ELAIN KM3, SFAX | Tél: 24 807 784 | MF: 1677720 S/A/C/000</div>
           <div class="title">BON DE TRANSFERT DE STOCK</div>
           <div class="subtitle">Document de suivi des mouvements entre emplacements</div>
         </div>
@@ -214,7 +214,7 @@ export default function TransfertDetailPage() {
           <div class="signature-block"><div class="signature-line"></div><div class="signature-label">LE DESTINATAIRE</div></div>
         </div>
 
-        <div class="footer">Document généré automatiquement - KALLEL TECH COMPANY</div>
+        <div class="footer">Document généré automatiquement - CHIHA GSM</div>
       </div>
     </body>
     </html>

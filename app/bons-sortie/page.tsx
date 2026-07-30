@@ -439,15 +439,15 @@ export default function BonsSortiePage() {
           </div>
 
           <div class="company-details">
-            01. Teniour chihia 3000 - SFAX
+            RTE ELAIN KM3, SFAX
           </div>
 
           <div class="company-details">
-            Tél : 25 535 035
+            Tél : 24 807 784
           </div>
 
           <div class="company-details">
-            TVA : 1860077 Q/A/M/000
+            TVA : 1677720 S/A/C/000
           </div>
         </div>
 

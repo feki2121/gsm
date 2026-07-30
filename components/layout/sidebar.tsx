@@ -187,7 +187,7 @@ export function Sidebar() {
           </div>
           {!isCollapsed && (
             <div className="flex flex-col">
-              <span className="text-sm font-semibold">KALLEL TECH COMPANY</span>
+              <span className="text-sm font-semibold">CHIHA GSM</span>
               <span className="text-xs text-sidebar-foreground/60">Facturation & Stock</span>
             </div>
           )}

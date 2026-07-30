@@ -26,7 +26,7 @@ Nous vous remercions pour votre règlement de ${montantReel.toFixed(3)} DT.
 Le solde restant de votre compte est de ${soldeReel.toFixed(3)} DT.
 
 Cordialement,
-Kallel Tech Company`;
+CHIHA GSM`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${cleanPhone}&text=${encodedMessage}&type=phone_number&app_absent=0`;

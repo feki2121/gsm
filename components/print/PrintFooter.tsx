@@ -3,8 +3,8 @@ import { PrintFooterProps } from "@/types/print";
 
 const DEFAULT_COMPANY = {
   name: "KALLAL TECH COMPANY",
-  address: "01. Teniour chihia 3000 - SFAXXXX",
-  phone: "25 535 035",
+  address: "RTE ELAIN KM3, SFAXXXX",
+  phone: "24 807 784",
 };
 
 export const PrintFooter: React.FC<PrintFooterProps> = ({

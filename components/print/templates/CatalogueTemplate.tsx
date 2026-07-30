@@ -30,10 +30,10 @@ interface CatalogueTemplateProps {
 
 const DEFAULT_COMPANY = {
   name: "KALLAL TECH COMPANY",
-  address: "01. Teniour chihia 3000 - SFAX",
-  phone: " 25 535 035",
+  address: "RTE ELAIN KM3, SFAX",
+  phone: " 24 807 784",
   email: "kallel@gmail.com",
-  vat: "1860077 Q/A/M/000",
+  vat: "1677720 S/A/C/000",
 };
 
 
@@ -334,7 +334,7 @@ export const CatalogueTemplate: React.FC<CatalogueTemplateProps> = ({
         {/* Colonne gauche - Logo */}
         <div className="header-left">
           <img
-            src="/ktc.png"
+            src="/chiha.jpeg"
             alt="Logo SIT"
             className="logo-img"
             onError={(e) => {
@@ -418,7 +418,7 @@ export const CatalogueTemplate: React.FC<CatalogueTemplateProps> = ({
         <div className="footer-content">
           <div className="footer-logo">
             <img
-              src="/ktc.png"
+              src="/chiha.jpeg"
               alt="Logo SIT"
               className="footer-logo-img"
               onError={(e) => {

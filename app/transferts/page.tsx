@@ -138,7 +138,7 @@ export default function TransfertsPage() {
     <body>
       <div class="print-container">
         <div class="header">
-          <div class="company-name">KALLEL TECH COMPANY</div>
+          <div class="company-name">CHIHA GSM</div>
           <div class="title">BON DE TRANSFERT GROUPÉ</div>
         </div>
 
@@ -176,7 +176,7 @@ export default function TransfertsPage() {
           <div class="signature-block"><div class="signature-line"></div><div class="signature-label">LE DESTINATAIRE</div></div>
         </div>
 
-        <div class="footer">Document généré automatiquement - KALLEL TECH COMPANY</div>
+        <div class="footer">Document généré automatiquement - CHIHA GSM</div>
       </div>
     </body>
     </html>

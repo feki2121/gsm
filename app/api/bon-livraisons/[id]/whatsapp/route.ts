@@ -82,7 +82,7 @@ Votre nouveau solde crédit est de ${nouveauSolde.toFixed(3)} DT.
 Nous vous remercions pour votre confiance.
 
 Cordialement,
-Kallel Tech Company`;
+CHIHA GSM`;
 
     const encodedMessage = encodeURIComponent(message);
     const whatsappUrl = `https://api.whatsapp.com/send/?phone=${cleanPhone}&text=${encodedMessage}&type=phone_number&app_absent=0`;

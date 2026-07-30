@@ -130,9 +130,9 @@ interface BonSortiePrintData {
  * - reference: Numéro/référence du document
  * - date: Date du document
  * - companyName: Nom de l'entreprise (défaut: KALLAL TECH COMPANY)
- * - companyAddress: Adresse (défaut: 01. Teniour chihia 3000 - SFAX)
- * - companyPhone: Téléphone (défaut: 25 535 035)
- * - companyVAT: N° TVA (défaut: 1860077 Q/A/M/000)
+ * - companyAddress: Adresse (défaut: RTE ELAIN KM3, SFAX)
+ * - companyPhone: Téléphone (défaut: 24 807 784)
+ * - companyVAT: N° TVA (défaut: 1677720 S/A/C/000)
  * - logoUrl: URL du logo (défaut: ktc.png)
  * 
  * Features:

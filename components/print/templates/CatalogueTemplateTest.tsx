@@ -33,10 +33,10 @@ interface CatalogueTemplateTestProps {
 
 const DEFAULT_COMPANY = {
   name: "KALLAL TECH COMPANY",
-  address: "01. Teniour chihia 3000 - SFAX",
-  phone: "25 535 035",
+  address: "RTE ELAIN KM3, SFAX",
+  phone: "24 807 784",
   email: "kallel@gmail.com",
-  vat: "1860077 Q/A/M/000",
+  vat: "1677720 S/A/C/000",
 };
 
 const COLUMNS_PER_ROW = 4;
