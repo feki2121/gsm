@@ -40,7 +40,7 @@ export const PrintHeader: React.FC<PrintHeaderProps> = ({
         <div className="company-details">{companyAddress}</div>
         <div className="company-details">Tél: {companyPhone}</div>
         {!isTicket && <div className="company-details">T.V.A.: {companyVAT}</div>}
-      </div>
+      </div> 
       {!isTicket && <div style={{ flex: "0 0 auto", width: "150px" }}></div>}
     </div>
   );
