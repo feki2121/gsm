@@ -1,0 +1,933 @@
+generator client {
+  provider        = "prisma-client-js"
+  binaryTargets   = ["native", "rhel-openssl-3.0.x"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  phone     String?   @unique
+  password  String
+  nom       String
+  role      Role     @default(CHAUFFEUR)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  chauffeur Chauffeur? 
+  permissions UserPermission[]
+}
+
+model UserPermission {
+  id         String   @id @default(cuid())
+  userId     String
+  permission String   // Ex: "can_view_products", "can_edit_clients"
+  granted    Boolean  @default(true)
+  createdAt  DateTime @default(now())
+  
+  user User @relation(fields: [userId], references: [id])
+  
+  @@unique([userId, permission])
+}
+
+model RolePermission {
+  id         String   @id @default(cuid())
+  role       Role
+  permission String
+  granted    Boolean  @default(true)
+  
+  @@unique([role, permission])
+}
+// ============= GESTION DES VEHICULES ET CHAUFFEURS =============
+
+model Vehicule {
+  id          String      @id @default(cuid())
+  immatricule String      @unique
+  nom         String
+  description String?
+  homeId      String      // Entrepôt associé (camion = entrepôt secondaire)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  home        Home        @relation(fields: [homeId], references: [id])
+  chauffeurs  Chauffeur[]
+}
+
+model Chauffeur {
+  id          String      @id @default(cuid())
+  userId      String      @unique
+  vehiculeId  String?
+  nom         String
+  telephone   String
+  cin         String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  
+  user        User        @relation(fields: [userId], references: [id])
+  vehicule    Vehicule?   @relation(fields: [vehiculeId], references: [id])
+  bonLivraisons BonLivraison[]
+  inventaires Inventaire[] 
+  reglements  ReglementClient[]
+  caisses     Caisse[] 
+  tournees    Tournee[]
+  reglementDivers ReglementDivers[]
+}
+
+model Home {
+  id                      String                    @id @default(cuid())
+  nom                     String                    @unique
+  description             String?
+  createdAt               DateTime                  @default(now())
+  produits                Product[]
+  transfertSources        TransfertStock[]          @relation("sourceTransferts")
+  transfertDests          TransfertStock[]          @relation("destinationTransferts")
+  stockLocations          StockLocation[]
+  ligneBonSortie          LigneBonSortie[]
+  ligneFactureFournisseur LigneFactureFournisseur[]
+  ligneBL                 LigneBL[]  // nouvelles relations
+  ligneFacture            LigneFacture[]
+  lignesBonEntree         LigneBonEntree[]          // ← Ajoutez cette ligne
+  lignesInventaire LigneInventaire[]  // ← Ajoutez cette ligne
+  vehicules               Vehicule[]                // ← AJOUTEZ CETTE LIGNE
+  bonLivraisons           BonLivraison[]            // ← AJOUTEZ CETTE LIGNE
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  nom         String    @unique
+  description String?
+  createdAt   DateTime  @default(now())
+  produits    Product[]
+}
+
+model Product {
+  id                      String                    @id @default(cuid())
+  reference               String                    @unique
+  code                    String?                   @unique
+  designation             String
+  categoryId              String
+  homeId                  String
+  prixAchat               Float
+  prixAchatHT             Float @default(0)
+  prixVente               Float
+  prixVenteHT             Float @default(0)
+  tva                     Float   @default(19)
+  quantiteStock           Int                       @default(0)
+  seuilAlerte             Int                       @default(5)
+  plafondRemise           Float                     @default(0)
+  imageUrl                String?                  
+  createdAt               DateTime                  @default(now())
+  updatedAt               DateTime                  @updatedAt
+  historiquePrix          PrixProduitHistorique[]
+  ligneBL                 LigneBL[]
+  ligneDevis              LigneDevis[]
+  ligneFacture            LigneFacture[]
+  ligneRetourClient       LigneRetourClient[]
+  category                Category                  @relation(fields: [categoryId], references: [id])
+  home                    Home                      @relation(fields: [homeId], references: [id])
+  stockMouvements         StockMovement[]
+  transferts              TransfertStock[]
+  stockLocations          StockLocation[]
+  ligneBonSortie          LigneBonSortie[]
+  ligneFactureFournisseur LigneFactureFournisseur[]
+  lignesBonEntree         LigneBonEntree[]          // ← Ajoutez cette ligne
+  stockParType            StockParType[] 
+  lignesInventaire LigneInventaire[]  // ← Ajoutez cette ligne
+  ligneRetourFournisseur  LigneRetourFournisseur[] // ← AJOUTER CETTE LIGNE
+}
+
+model PrixProduitHistorique {
+  id              String   @id @default(cuid())
+  productId       String
+  prixAchat       Float    // Prix d'achat TTC au moment de l'achat
+  prixAchatHT     Float    // Prix d'achat HT
+  prixVente       Float    // Prix de vente TTC appliqué
+  tva             Float    // TVA appliquée
+  dateApplication DateTime @default(now())
+  bonEntreeId     String?  // Référence au bon d'entrée qui a généré ce prix
+  bonEntreeNumero String?  // Numéro du bon d'entrée pour référence
+  
+  product         Product  @relation(fields: [productId], references: [id])
+  bonEntree       BonEntree? @relation(fields: [bonEntreeId], references: [id])
+  
+  @@index([productId])
+  @@index([dateApplication])
+}
+
+model StockMovement {
+  id          String             @id @default(cuid())
+  productId   String
+  type        TypeMouvementStock
+  quantite    Int
+  motif       String
+  date        DateTime           @default(now())
+  product     Product            @relation(fields: [productId], references: [id])
+  bonSortieId String? // ← Ajoutez cette ligne
+  bonSortie   BonSortie?         @relation(fields: [bonSortieId], references: [id]) // ← Ajoutez cette ligne
+}
+
+model ClientAddress {
+  id          String   @id @default(cuid())
+  clientId    String
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  adresse     String  
+  lieuDit     String? 
+  codePostal  String? 
+  ville       String?  
+  latitude    Float?   
+  longitude   Float?  
+  estPrincipale Boolean @default(false) 
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  missions    Mission[]
+
+  @@index([clientId])
+}
+
+model Client {
+  id            String            @id @default(cuid())
+  nom           String
+  prenom        String?
+  telephone     String
+  email         String?
+  mf            String?
+  cin           String?
+  estProspect   Boolean           @default(false)  
+  estPasseParBL  Boolean          @default(false) 
+  solde         Float             @default(0)
+  creditAutorise Float?           @default(0)
+  creditUtilise  Float            @default(0)
+  creditDisponible Float          @default(0)
+  estAutoriseCredit Boolean       @default(false)
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
+  
+  addresses     ClientAddress[]  
+  bonLivraisons BonLivraison[]
+  devis         Devis[]
+  factures      Facture[]
+  reglements    ReglementClient[]
+  retourClients RetourClient[]
+  bonSorties    BonSortie[]
+  missions      Mission[]
+}
+
+model Fournisseur { 
+  id                 String                 @id @default(cuid())
+  nom                String
+  telephone          String
+  adresse            String?
+  email              String?
+  solde              Float                  @default(0)
+  
+  // Champs pour soft delete
+  isDeleted          Boolean                @default(false)
+  deletedAt          DateTime?
+  deletedBy          String?
+  deleteReason       String?
+  
+  createdAt          DateTime               @default(now())
+  updatedAt          DateTime               @updatedAt
+  
+  reglements         ReglementFournisseur[]
+  retourFournisseurs RetourFournisseur[]
+  factures           FactureFournisseur[]
+  bonsEntree         BonEntree[]
+}
+
+model Devis {
+  id        String       @id @default(cuid())
+  numero    String       @unique
+  date      DateTime     @default(now())
+  clientId  String
+  totalHT   Float
+  totalTTC  Float
+  validite  DateTime
+  statut    StatutDevis  @default(EN_ATTENTE)
+  remise        Float         @default(0)
+  remiseType    String        @default("PERCENT")
+  createdAt DateTime     @default(now())
+  updatedAt DateTime     @updatedAt
+  client    Client       @relation(fields: [clientId], references: [id])
+  lignes    LigneDevis[]
+}
+
+model LigneDevis {
+  id           String  @id @default(cuid())
+  devisId      String
+  productId    String
+  quantite     Int
+  prixUnitaire Float
+  tva          Float   @default(19)
+  devis        Devis   @relation(fields: [devisId], references: [id])
+  product      Product @relation(fields: [productId], references: [id])
+}
+
+model BonLivraison {
+  id             String    @id @default(cuid())
+  numero         String    @unique
+  date           DateTime  @default(now())
+  clientId       String
+  factureId      String?
+  chauffeurId    String?  
+  homeId         String?   // Entrepôt source (PRINCIPAL ou véhicule)
+  statut         StatutBL  @default(EN_ATTENTE)
+  modeReglement  TypeReglement?  
+  montantTotal   Float     @default(0) 
+  montantHT      Float     @default(0) 
+  montantTVA     Float     @default(0) 
+  resteCredit    Float?    @default(0)
+  montantCredit  Float?    @default(0)
+  montantPaye    Float     @default(0)
+  montantRestant Float     @default(0)
+  remise         Float     @default(0) 
+  detailsMixte   String?   // JSON: {"ESPECE": 100, "CHEQUE": 50, "TRAITE_BANCAIRE": 200, "CREDIT": 150}
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  client         Client    @relation(fields: [clientId], references: [id])
+  facture        Facture?  @relation("BonLivraisonToFactureLink", fields: [factureId], references: [id])
+  lignes         LigneBL[]
+  factures       Facture[] @relation("BonLivraisonToFacture")
+  reglements     ReglementClientBL[]
+  retourClients RetourClient[]
+
+  chauffeur      Chauffeur? @relation(fields: [chauffeurId], references: [id])
+  home           Home?      @relation(fields: [homeId], references: [id])
+}
+ 
+model LigneBL {
+  id             String       @id @default(cuid())
+  bonLivraisonId String
+  productId      String
+  homeId         String
+  quantite       Int
+  quantiteRetournee Int @default(0)
+  prixVente      Float        @default(0)
+  remiseLigne    Float        @default(0)
+  bonLivraison   BonLivraison @relation(fields: [bonLivraisonId], references: [id])
+  product        Product      @relation(fields: [productId], references: [id])
+  home           Home         @relation(fields: [homeId], references: [id])
+}
+
+model Facture {
+  id            String             @id @default(cuid())
+  numero        String             @unique
+  date          DateTime           @default(now())
+  clientId      String
+  bonLivraisonId String?            // facture créée à partir d'un BL
+  totalHT       Float
+  totalTVA      Float
+  totalTTC      Float
+  remise        Float?             @default(0)
+  statut        StatutFacture      @default(IMPAYEE)
+  type          TypeFacture        @default(DIRECTE)
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  bonLivraisons BonLivraison[]      @relation("BonLivraisonToFactureLink")
+  bonLivraisonRef BonLivraison?     @relation("BonLivraisonToFacture", fields: [bonLivraisonId], references: [id])
+  client        Client             @relation(fields: [clientId], references: [id])
+  lignes        LigneFacture[]
+  reglements    ReglementFacture[]
+  retourClients RetourClient[]
+}
+
+model LigneFacture {
+  id           String  @id @default(cuid())
+  factureId    String
+  productId    String
+  homeId       String?
+  quantite     Int
+  prixUnitaire Float
+  remiseLigne  Float   @default(0)
+  tva          Float   @default(19)
+  facture      Facture @relation(fields: [factureId], references: [id])
+  product      Product @relation(fields: [productId], references: [id])
+  home         Home?   @relation(fields: [homeId], references: [id])
+}
+
+model RetourClient {
+  id        String              @id @default(cuid())
+  numero    String              @unique
+  date      DateTime            @default(now())
+  clientId  String
+  factureId String?
+  bonLivraisonId String? 
+  montant   Float
+  createdAt DateTime            @default(now())
+  lignes    LigneRetourClient[]
+  client    Client              @relation(fields: [clientId], references: [id])
+  facture   Facture?            @relation(fields: [factureId], references: [id])
+  bonLivraison BonLivraison?    @relation(fields: [bonLivraisonId], references: [id])
+}
+
+model LigneRetourClient {
+  id             String       @id @default(cuid())
+  retourClientId String
+  productId      String
+  quantite       Int
+  prixUnitaire   Float
+  product        Product      @relation(fields: [productId], references: [id])
+  retourClient   RetourClient @relation(fields: [retourClientId], references: [id])
+}
+
+model RetourFournisseur {
+  id            String      @id @default(cuid())
+  numero        String      @unique
+  date          DateTime    @default(now())
+  fournisseurId String
+  bonEntreeId   String? 
+  motif         String?
+  montant       Float
+  createdAt     DateTime    @default(now())
+  fournisseur   Fournisseur @relation(fields: [fournisseurId], references: [id])
+  bonEntree     BonEntree?  @relation(fields: [bonEntreeId], references: [id])
+  lignes        LigneRetourFournisseur[]
+}
+
+model LigneRetourFournisseur {
+  id                  String            @id @default(cuid())
+  retourFournisseurId String
+  productId           String
+  quantite            Int
+  prixUnitaire        Float
+  ligneBonEntreeId    String?            
+  product             Product           @relation(fields: [productId], references: [id])
+  retourFournisseur   RetourFournisseur @relation(fields: [retourFournisseurId], references: [id])
+  ligneBonEntree      LigneBonEntree?   @relation(fields: [ligneBonEntreeId], references: [id]) 
+}
+
+model ReglementClient {
+  id            String             @id @default(cuid())
+  date          DateTime           @default(now())
+  clientId      String
+  nameSecondClient      String?
+
+  chauffeurId   String? 
+  montant       Float
+  typeReglement TypeReglement
+  reference     String?
+  statut        StatutReglement    @default(EN_ATTENTE)
+  echeance      DateTime?
+  banque        String?
+  imageUrl      String?                  
+  domiciliation String?
+  detailsMixte  String?
+  createdAt     DateTime           @default(now())
+  updatedAt     DateTime           @updatedAt
+  client        Client             @relation(fields: [clientId], references: [id])
+  chauffeur     Chauffeur?        @relation(fields: [chauffeurId], references: [id], onDelete: SetNull)
+  factures      ReglementFacture[]
+  bonLivraisons ReglementClientBL[]
+}
+
+model ReglementClientBL {
+  id          String      @id @default(cuid())
+  reglementId String
+  bonLivraisonId String
+  montant     Float
+  
+  reglement   ReglementClient @relation(fields: [reglementId], references: [id])
+  bonLivraison BonLivraison   @relation(fields: [bonLivraisonId], references: [id])
+  
+  @@unique([reglementId, bonLivraisonId])
+}
+
+model ReglementFacture {
+  id              String          @id @default(cuid())
+  reglementId     String
+  factureId       String
+  montantApplique Float
+  facture         Facture         @relation(fields: [factureId], references: [id])
+  reglement       ReglementClient @relation(fields: [reglementId], references: [id])
+}
+
+model ReglementFournisseur {
+  id            String                        @id @default(cuid())
+  date          DateTime                      @default(now())
+  fournisseurId String
+  montant       Float
+  typeReglement TypeReglement
+  reference     String?
+  statut        StatutReglement               @default(EN_ATTENTE)
+  echeance      DateTime?
+  imageUrl      String?                  
+  banque        String?
+  domiciliation String?
+  detailsMixte  String? // JSON: {"ESPECE": 100, "CHEQUE": 50, ...}
+  createdAt     DateTime                      @default(now())
+  updatedAt     DateTime                      @updatedAt
+  fournisseur   Fournisseur                   @relation(fields: [fournisseurId], references: [id])
+  factures      ReglementFactureFournisseur[]
+  bonsEntree    ReglementFournisseurBE[]      // ← AJOUTEZ CETTE LIGNE
+}
+
+model ReglementDivers {
+  id            String           @id @default(cuid())
+  date          DateTime         @default(now())
+  libelle       String
+  categorie     CategorieDepense
+  montant       Float
+  modeReglement TypeReglement
+  reference     String?
+  justificatif  String?
+  imageUrl      String?           
+  chauffeurId   String?          
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+  
+  chauffeur     Chauffeur?       @relation(fields: [chauffeurId], references: [id], onDelete: SetNull) // ← AJOUTER CETTE LIGNE
+}
+
+model Caisse {
+  id                 String            @id @default(cuid())
+  date               DateTime          // ← Supprimer @unique
+  chauffeurId        String?
+  soldeOuverture     Float
+  totalEncaissements Float             @default(0)
+  totalDecaissements Float             @default(0)
+  soldeTheorique     Float
+  soldeReel          Float?
+  ecart              Float?
+  statut             StatutCaisse      @default(OUVERTE)
+  createdAt          DateTime          @default(now())
+  updatedAt          DateTime          @updatedAt
+  chauffeur          Chauffeur?        @relation(fields: [chauffeurId], references: [id], onDelete: SetNull)
+  mouvements         MouvementCaisse[]
+
+  @@unique([date, chauffeurId])
+}
+
+model MouvementCaisse {
+  id            String              @id @default(cuid())
+  date          DateTime            @default(now())
+  caisseId      String
+  type          TypeMouvementCaisse
+  modeReglement TypeReglement
+  montant       Float
+  reference     String?
+  libelle       String
+  createdAt     DateTime            @default(now())
+  caisse        Caisse              @relation(fields: [caisseId], references: [id])
+}
+
+model TransfertStock {
+  id                String          @id @default(cuid())
+  numero            String          @unique
+  date              DateTime        @default(now())
+  productId         String
+  sourceHomeId      String
+  destinationHomeId String
+  quantite          Int
+  motif             String?
+  statut            StatutTransfert @default(EN_ATTENTE)
+  validePar         String?
+  dateValidation    DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  product         Product @relation(fields: [productId], references: [id])
+  sourceHome      Home    @relation("sourceTransferts", fields: [sourceHomeId], references: [id])
+  destinationHome Home    @relation("destinationTransferts", fields: [destinationHomeId], references: [id])
+}
+
+model StockLocation {
+  id        String @id @default(cuid())
+  productId String
+  homeId    String
+  quantite  Int    @default(0)
+
+  product Product @relation(fields: [productId], references: [id])
+  home    Home    @relation(fields: [homeId], references: [id])
+
+  @@unique([productId, homeId])
+}
+
+// ============= BONS DE SORTIE =============
+
+model BonSortie {
+  id                String          @id @default(cuid())
+  numero            String          @unique
+  date              DateTime        @default(now())
+  dateDebut         DateTime
+  dateFin           DateTime
+  destination       String
+  nomConducteur     String
+  matriculeVehicule String
+  numCIN            String
+  clientId          String?
+  destinataire      String
+  motif             MotifBonSortie
+  adresseLivraison  String?
+  observation       String?
+  statut            StatutBonSortie @default(BROUILLON)
+  totalHT           Float           @default(0)
+  totalTTC          Float           @default(0)
+  createdBy         String
+  validePar         String?
+  dateValidation    DateTime?
+  annulePar         String?
+  dateAnnulation    DateTime?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+
+  client         Client?          @relation(fields: [clientId], references: [id])
+  lignes         LigneBonSortie[]
+  stockMovements StockMovement[]
+}
+
+model LigneBonSortie {
+  id              String @id @default(cuid())
+  bonSortieId     String
+  productId       String
+  homeId          String
+  quantite        Int
+  prixUnitaireHT  Float
+  prixUnitaireTTC Float
+  remise          Float  @default(0)
+  totalHT         Float
+  totalTTC        Float
+  tva             Float  @default(19)
+
+  bonSortie BonSortie @relation(fields: [bonSortieId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  home      Home      @relation(fields: [homeId], references: [id])
+}
+
+// ============= FACTURES FOURNISSEURS =============
+
+model FactureFournisseur {
+  id            String                   @id @default(cuid())
+  numero        String                   @unique
+  date          DateTime                 @default(now())
+  fournisseurId String
+  totalHT       Float
+  totalTVA      Float
+  totalTTC      Float
+  remise        Float?                   @default(0)
+  statut        StatutFactureFournisseur @default(IMPAYEE)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  fournisseur Fournisseur                   @relation(fields: [fournisseurId], references: [id])
+  lignes      LigneFactureFournisseur[]
+  reglements  ReglementFactureFournisseur[]
+}
+
+model LigneFactureFournisseur {
+  id             String @id @default(cuid())
+  factureId      String
+  productId      String
+  quantite       Int
+  prixUnitaireHT Float
+  tva            Float  @default(19)
+  totalHT        Float
+  totalTTC       Float
+  homeId         String // Emplacement où le stock sera ajouté
+
+  facture FactureFournisseur @relation(fields: [factureId], references: [id])
+  product Product            @relation(fields: [productId], references: [id])
+  home    Home               @relation(fields: [homeId], references: [id])
+}
+
+model ReglementFactureFournisseur {
+  id              String @id @default(cuid())
+  reglementId     String
+  factureId       String
+  montantApplique Float
+
+  facture   FactureFournisseur   @relation(fields: [factureId], references: [id])
+  reglement ReglementFournisseur @relation(fields: [reglementId], references: [id])
+}
+
+// ============= BONS D'ENTREE =============
+
+model BonEntree {
+  id          String         @id @default(cuid())
+  numero      String         @unique
+  date        DateTime       @default(now())
+  fournisseurId String?
+  type        TypeBonEntree
+  referenceDoc String?       // Référence du document source (BL, Facture, etc.)
+  description  String?
+  statut      StatutBonEntree @default(BROUILLON)
+  totalHT     Float          @default(0)
+  totalTVA    Float          @default(0)
+  totalTTC    Float           @default(0)
+  createdBy   String
+  validePar   String?
+  dateValidation DateTime?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+
+  fournisseur Fournisseur?       @relation(fields: [fournisseurId], references: [id])
+  lignes      LigneBonEntree[]
+  reglements  ReglementFournisseurBE[]
+  historiquePrix PrixProduitHistorique[]
+  retourFournisseurs RetourFournisseur[] 
+}
+
+model ReglementFournisseurBE {
+  id          String      @id @default(cuid())
+  reglementId String
+  bonEntreeId String
+  montant     Float
+  
+  reglement   ReglementFournisseur @relation(fields: [reglementId], references: [id])
+  bonEntree   BonEntree           @relation(fields: [bonEntreeId], references: [id])
+  
+  @@unique([reglementId, bonEntreeId])
+}
+
+model LigneBonEntree {
+  id             String     @id @default(cuid())
+  bonEntreeId    String
+  productId      String
+  homeId         String    
+  quantite       Int
+  quantiteRetournee Int @default(0) 
+  prixUnitaireHT Float
+  tva            Float      @default(19)
+  totalHT        Float
+  totalTTC       Float
+
+  bonEntree BonEntree @relation(fields: [bonEntreeId], references: [id])
+  product   Product   @relation(fields: [productId], references: [id])
+  home      Home      @relation(fields: [homeId], references: [id])
+  retourLignes LigneRetourFournisseur[]
+}
+
+// Vue ou table pour suivre le stock par type de BE
+model StockParType {
+  id        String   @id @default(cuid())
+  productId String
+  typeBE    TypeBonEntree
+  quantite  Int      @default(0)
+  
+  product Product @relation(fields: [productId], references: [id])
+  
+  @@unique([productId, typeBE])
+}
+
+// ============= INVENTAIRE =============
+
+model Inventaire {
+  id          String         @id @default(cuid())
+  numero      String         @unique
+  date        DateTime       @default(now())
+  dateDebut   DateTime       // Date de début de l'inventaire
+  dateFin     DateTime       // Date de fin de l'inventaire
+  description String?
+  statut      StatutInventaire @default(BROUILLON)
+  chauffeurId    String?
+  createdAt   DateTime       @default(now())
+  updatedAt   DateTime       @updatedAt
+  validePar   String?
+  dateValidation DateTime?
+
+  chauffeur      Chauffeur?    @relation(fields: [chauffeurId], references: [id], onDelete: SetNull)
+  lignes      LigneInventaire[]
+}
+
+model LigneInventaire {
+  id                String   @id @default(cuid())
+  inventaireId      String
+  productId         String
+  homeId            String   // Entrepôt inventorié
+  quantiteTheorique Int      // Stock théorique selon les mouvements
+  quantitePhysique  Int      // Stock réel compté
+  ecart             Int      // Différence (physique - théorique)
+  commentaire       String?
+  
+  inventaire Inventaire @relation(fields: [inventaireId], references: [id])
+  product    Product    @relation(fields: [productId], references: [id])
+  home       Home       @relation(fields: [homeId], references: [id])
+}
+
+// ============= TOURNEES =============
+
+// ============= TOURNEES =============
+
+model Tournee {
+  id          String      @id @default(cuid())
+  numero      String      @unique
+  date        DateTime    @default(now())
+  chauffeurId String?
+  ville       String
+  statut      TourneeStatut @default(EN_COURS)
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+
+  chauffeur   Chauffeur?   @relation(fields: [chauffeurId], references: [id])
+  missions    Mission[]
+}
+
+model Mission {
+  id              String        @id @default(cuid())
+  tourneeId       String
+  clientId        String
+  adresseId       String
+  ordre           Int
+  action          MissionAction @default(VISITE)
+  commentaire     String?
+  statut          MissionStatut @default(EN_ATTENTE)
+  latitude        Float?
+  longitude       Float?
+  distance        Float?
+  dateRealisation DateTime?
+  actionHistory   Json?        
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  tournee         Tournee       @relation(fields: [tourneeId], references: [id])
+  client          Client        @relation(fields: [clientId], references: [id])
+  adresse         ClientAddress @relation(fields: [adresseId], references: [id])
+}
+
+enum TourneeStatut {
+  EN_COURS
+  TERMINEE
+  ANNULEE
+}
+
+enum MissionAction {
+  VISITE
+  VALIDATION
+  A_REVISITER
+}
+
+enum MissionStatut {
+  EN_ATTENTE
+  REALISEE
+  REPORTEE
+  ANNULEE
+}
+
+enum StatutInventaire {
+  BROUILLON
+  EN_COURS
+  VALIDE
+  CLOTURE
+}
+
+enum TypeBonEntree {
+  BS     // Bon de sortie
+  BL     // Bon de livraison
+  FAC    // Facture
+  AUCUN
+}
+
+enum StatutBonEntree {
+  BROUILLON
+  VALIDE
+  ANNULE
+}
+
+enum StatutFactureFournisseur {
+  IMPAYEE
+  PARTIELLE
+  PAYEE
+}
+
+enum MotifBonSortie {
+  VENTE
+  TRANSFERT
+  DON
+  ECHANTILLON
+  PERTE
+  INVENTAIRE
+  AUTRE
+}
+
+enum StatutBonSortie {
+  BROUILLON
+  VALIDE
+  ANNULE
+}
+
+enum StatutTransfert {
+  EN_ATTENTE
+  VALIDE
+  ANNULE
+}
+
+enum Role {
+  ADMIN
+  CHAUFFEUR
+}
+
+enum TypeMouvementStock {
+  ENTREE
+  SORTIE
+  AJUSTEMENT
+}
+
+enum StatutDevis {
+  EN_ATTENTE
+  ACCEPTE
+  REFUSE
+  TRANSFORME_EN_FACTURE
+}
+
+enum StatutBL {
+  EN_ATTENTE
+  LIVRE
+  ANNULE
+}
+
+enum StatutFacture {
+  PAYEE
+  IMPAYEE
+  PARTIELLE
+}
+
+enum TypeFacture {
+  DEVIS
+  DIRECTE
+}
+
+enum TypeReglement {
+  ESPECE
+  CHEQUE
+  TRAITE_DOMICILE
+  TRAITE_BANCAIRE
+  VIREMENT
+  CREDIT
+  MIXTE
+}
+
+enum StatutReglement {
+  EN_ATTENTE
+  PARTIELLE
+  ENCAISSE
+  PAYE
+  REJETE
+  RENOUVELE
+}
+
+enum StatutCaisse {
+  OUVERTE
+  CLOTUREE
+}
+
+enum TypeMouvementCaisse {
+  ENCAISSEMENT
+  DECAISSEMENT
+  DECAISSEMENTVIRTUEL
+  ENCAISSEMENTVIRTUEL // vente bl type credit
+  ENCAISSEMENTCREDIT  // solde client
+}
+
+enum CategorieDepense {
+  ESSENCE
+  ELECTRICITE
+  EAU
+  TELECOM
+  REPARATION
+  FOURNITURE
+  AUTRE
+}
