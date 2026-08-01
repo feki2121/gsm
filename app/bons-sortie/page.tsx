@@ -431,7 +431,7 @@ export default function BonsSortiePage() {
         <!-- RIGHT COMPANY -->
         <div class="header-right">
           <div class="company-name">
-            KALLAL TECH COMPANY
+            CHIHA GSM
           </div>
 
           <div class="company-details">
@@ -545,7 +545,7 @@ export default function BonsSortiePage() {
 
         <div class="signature-box">
           <div class="signature-line">
-            Pour KALLAL TECH COMPANY
+            Pour CHIHA GSM
           </div>
         </div>
 

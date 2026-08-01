@@ -2,7 +2,7 @@ import React from "react";
 import { PrintFooterProps } from "@/types/print";
 
 const DEFAULT_COMPANY = {
-  name: "KALLAL TECH COMPANY",
+  name: "CHIHA GSM",
   address: "RTE ELAIN KM3, SFAXXXX",
   phone: "24 807 784",
 };

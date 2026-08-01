@@ -322,7 +322,7 @@ function buildTicketHtml(
   
   <div class="header">
     <img src="/chiha.jpeg" alt="Logo" class="logo-img" style="max-width: 8mm;" onerror="this.style.display='none'" />
-    <div class="title">KALLAL TECH COMPANY</div>
+    <div class="title">CHIHA GSM</div>
     <div class="date">${now}</div>
     <div class="period">${dateRange}</div>
   </div>
@@ -593,7 +593,7 @@ function buildPrintHtml(
 
 <div class="header">
   <div>
-    <div><b>KALLAL TECH COMPANY</b></div>
+    <div><b>CHIHA GSM</b></div>
     <div style="font-size:11px;color:#666">
       SFAX - Tél: 24 807 784
     </div>

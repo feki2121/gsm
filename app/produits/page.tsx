@@ -384,7 +384,7 @@ export default function ProduitsPage() {
         <!DOCTYPE html>
         <html>
         <head>
-          <title>Catalogue Produits KTC</title>
+          <title>Catalogue Produits CHIHA GSM</title>
           <meta charset="UTF-8">
           <style>
             body {

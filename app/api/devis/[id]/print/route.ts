@@ -51,7 +51,7 @@
 //         {
 //           columns: [
 //             {
-//               text: 'KALLAL TECH COMPANY\nVente en Gros Produits Divers\nRTE ELAIN KM3, SFAX\nTél: 24 807 784\nT.V.A.: 1677720 S/A/C/000',
+//               text: 'CHIHA GSM\nVente en Gros Produits Divers\nRTE ELAIN KM3, SFAX\nTél: 24 807 784\nT.V.A.: 1677720 S/A/C/000',
 //               style: 'companyInfo'
 //             },
 //             {
@@ -184,7 +184,7 @@
 //         fontSize: 10
 //       },
 //       footer: (currentPage: number, pageCount: number) => ({
-//         text: `KALLAL TECH COMPANY - RTE ELAIN KM3, SFAX - Tél: 24 807 784 | Page ${currentPage}/${pageCount}`,
+//         text: `CHIHA GSM - RTE ELAIN KM3, SFAX - Tél: 24 807 784 | Page ${currentPage}/${pageCount}`,
 //         alignment: 'center',
 //         fontSize: 7,
 //         color: '#999',

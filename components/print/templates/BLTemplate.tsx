@@ -10,7 +10,7 @@ interface BLTemplateProps {
 }
 
 const DEFAULT_COMPANY = {
-    name: "KALLAL TECH COMPANY",
+    name: "CHIHA GSM",
     address: "RTE ELAIN KM3, SFAX",
     phone: "24 807 784",
     vat: "1677720 S/A/C/000",

@@ -129,7 +129,7 @@ interface BonSortiePrintData {
  * - title: Titre du document
  * - reference: Numéro/référence du document
  * - date: Date du document
- * - companyName: Nom de l'entreprise (défaut: KALLAL TECH COMPANY)
+ * - companyName: Nom de l'entreprise (défaut: CHIHA GSM)
  * - companyAddress: Adresse (défaut: RTE ELAIN KM3, SFAX)
  * - companyPhone: Téléphone (défaut: 24 807 784)
  * - companyVAT: N° TVA (défaut: 1677720 S/A/C/000)

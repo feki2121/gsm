@@ -29,10 +29,10 @@ interface CatalogueTemplateProps {
 }
 
 const DEFAULT_COMPANY = {
-  name: "KALLAL TECH COMPANY",
+  name: "CHIHA GSM",
   address: "RTE ELAIN KM3, SFAX",
   phone: " 24 807 784",
-  email: "kallel@gmail.com",
+  email: "chihagsm@gmail.com",
   vat: "1677720 S/A/C/000",
 };
 

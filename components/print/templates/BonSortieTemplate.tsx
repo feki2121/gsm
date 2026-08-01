@@ -9,7 +9,7 @@ interface BonSortieTemplateProps {
 }
 
 const DEFAULT_COMPANY = {
-  name: "KALLAL TECH COMPANY",
+  name: "CHIHA GSM",
   address: "RTE ELAIN KM3, SFAX",
   phone: "24 807 784",
   vat: "1677720 S/A/C/000",
@@ -180,7 +180,7 @@ export const BonSortieTemplate: React.FC<BonSortieTemplateProps> = ({
           </div>
           <div className="signature-block">
             <div className="signature-line"></div>
-            <div className="signature-label">Pour KALLAL TECH COMPANY</div>
+            <div className="signature-label">Pour CHIHA GSM</div>
           </div>
         </div>
       )}
