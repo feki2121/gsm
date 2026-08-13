@@ -90,32 +90,32 @@ export async function POST(req: NextRequest) {
       const productsToCreate: any[] = [];
       const processedLignes: any[] = [];
 
+      // ✅ Récupérer TOUS les codes existants en une seule fois
+      const currentYear = new Date().getFullYear();
+      const existingProducts = await tx.product.findMany({
+        where: {
+          code: {
+            startsWith: `${currentYear}-`,
+          },
+        },
+        select: { code: true }
+      });
+
+      // ✅ Créer un Set des codes existants
+      const usedCodes = new Set(
+        existingProducts.map((p: any) => p.code)
+      );
+
       // Première passe: collecter les nouveaux produits et générer leurs codes
       for (const ligne of lignes) {
         if (!ligne.productId && ligne.newProduct) {
           let productCode = ligne.newProduct.code;
 
           if (!productCode || productCode.trim() === "") {
-            // Générer un code unique basé sur l'année courante
-            const currentYear = new Date().getFullYear();
-
-            // Récupérer TOUS les codes existants (y compris ceux créés dans cette transaction)
-            const existingProducts = await tx.product.findMany({
-              where: {
-                code: {
-                  startsWith: `${currentYear}-`,
-                },
-              },
-              select: { code: true }
-            });
-
-            // Collecter les codes déjà utilisés
-            const usedCodes = new Set(
-              existingProducts.map((p: any) => p.code)
-            );
-
-            // Ajouter les codes des produits qu'on va créer
+            // ✅ Trouver le numéro maximum PARMI TOUS les codes (existants + déjà créés dans cette transaction)
             let maxNumber = 0;
+
+            // Vérifier les codes existants
             for (const code of usedCodes) {
               const codeStr = code as string;
               const match = codeStr.match(new RegExp(`${currentYear}-(\\d+)`));
@@ -125,25 +125,32 @@ export async function POST(req: NextRequest) {
               }
             }
 
-            // Générer un code unique pour ce produit
+            // Vérifier les codes déjà générés pour cette transaction
+            for (const product of productsToCreate) {
+              if (product.code) {
+                const match = product.code.match(new RegExp(`${currentYear}-(\\d+)`));
+                if (match) {
+                  const num = parseInt(match[1]);
+                  if (num > maxNumber) maxNumber = num;
+                }
+              }
+            }
+
+            // Générer le prochain code
             let nextNumber = maxNumber + 1;
             let generatedCode = `${currentYear}-${String(nextNumber).padStart(4, '0')}`;
 
-            // Vérifier que le code n'est pas déjà utilisé dans la liste actuelle
-            while (productsToCreate.some(p => p.code === generatedCode)) {
+            // ✅ Vérifier que le code est vraiment unique (parmi existants + déjà créés)
+            while (usedCodes.has(generatedCode) || productsToCreate.some(p => p.code === generatedCode)) {
               nextNumber++;
               generatedCode = `${currentYear}-${String(nextNumber).padStart(4, '0')}`;
             }
 
             productCode = generatedCode;
           } else {
-            // Vérifier que le code saisi n'existe pas déjà
-            const existingProduct = await tx.product.findFirst({
-              where: { code: productCode }
-            });
-
-            if (existingProduct) {
-              throw new Error(`Le code produit "${productCode}" existe déjà`);
+            // ✅ Vérifier que le code saisi n'existe pas déjà
+            if (usedCodes.has(productCode)) {
+              throw new Error(`Le code produit "${productCode}" existe déjà en base de données`);
             }
 
             // Vérifier qu'il n'y a pas de conflit avec d'autres nouveaux produits
@@ -151,6 +158,9 @@ export async function POST(req: NextRequest) {
               throw new Error(`Le code produit "${productCode}" est dupliqué entre plusieurs nouveaux produits`);
             }
           }
+
+          // ✅ Ajouter le code à la liste des codes utilisés (pour cette transaction)
+          usedCodes.add(productCode);
 
           productsToCreate.push({
             ...ligne.newProduct,
@@ -183,10 +193,10 @@ export async function POST(req: NextRequest) {
             categoryId: productData.categoryId,
             homeId: productData.homeId,
             prixAchat: productData.prixAchat,
-            prixAchatHT: productData.prixAchatHT,
+            prixAchatHT: productData.prixAchatHT || 0,
             prixVente: productData.prixVente,
-            prixVenteHT: productData.prixVenteHT,
-            tva: productData.tva,
+            prixVenteHT: productData.prixVenteHT || 0,
+            tva: productData.tva || 19,
             quantiteStock: 0,
             seuilAlerte: productData.seuilAlerte || 5,
             plafondRemise: productData.plafondRemise || 0,
@@ -213,7 +223,6 @@ export async function POST(req: NextRequest) {
         const ligneTotalTTC = roundTo3Decimals(ligne.quantite * ligne.prixUnitaireTTC);
         const ligneTVA = roundTo3Decimals(ligneTotalTTC - ligneHT);
 
-        // ✅ ACCUMULATION AVEC ARRONDI
         totalHT = roundTo3Decimals(totalHT + ligneHT);
         totalTVA = roundTo3Decimals(totalTVA + ligneTVA);
 
@@ -224,19 +233,15 @@ export async function POST(req: NextRequest) {
           prixUnitaireHT: ligne.prixUnitaireHT,
           prixUnitaireTTC: ligne.prixUnitaireTTC,
           prixVente: ligne.prixVente,
-          prixVenteHT: roundTo3Decimals(ligne.prixVenteHT),
+          prixVenteHT: roundTo3Decimals(ligne.prixVenteHT || 0),
           tva: ligne.tva || 19,
           totalHT: ligneHT,
           totalTTC: ligneTotalTTC,
-
           originalLigne: ligne
         };
       }));
-      let totalTTC = roundTo3Decimals(lignesCalculees.reduce((sum, ligne) => sum + ligne.totalTTC, 0));
 
-      if (type === "FAC") {
-        totalTTC = Number(totalTTC) + 1;
-      }
+      let totalTTC = roundTo3Decimals(lignesCalculees.reduce((sum, ligne) => sum + ligne.totalTTC, 0));
 
       // Créer le bon d'entrée
       const bonEntree = await tx.bonEntree.create({
@@ -282,22 +287,6 @@ export async function POST(req: NextRequest) {
           where: { id: ligne.productId }
         });
 
-        // if (product && product.plafondRemise > 0) {
-        //   const lastPurchasePrice = product.prixAchat;
-        //   const currentPrice = ligne.prixUnitaireTTC;
-
-        //   if (lastPurchasePrice > 0 && currentPrice < lastPurchasePrice) {
-        //     const remise = ((lastPurchasePrice - currentPrice) / lastPurchasePrice) * 100;
-
-        //     if (remise > product.plafondRemise) {
-        //       throw new Error(
-        //         `La remise sur le produit ${product.designation} (${remise.toFixed(2)}%) ` +
-        //         `dépasse le plafond autorisé de ${product.plafondRemise}%`
-        //       );
-        //     }
-        //   }
-        // }
-
         // Mise à jour du stockLocation
         const stockLocation = await tx.stockLocation.findUnique({
           where: {
@@ -338,27 +327,12 @@ export async function POST(req: NextRequest) {
           },
         });
 
-        // Création historique des prix
-        // await tx.prixProduitHistorique.create({
-        //   data: {
-        //     productId: ligne.productId,
-        //     prixAchat: ligne.prixUnitaireTTC,
-        //     prixAchatHT: ligne.prixUnitaireHT,
-        //     prixVente: ligne.prixVente,
-        //     prixVenteHT: ligne.prixVenteHT,
-        //     tva: ligne.tva,
-        //     dateApplication: new Date(),
-        //     bonEntreeId: bonEntree.id,
-        //     bonEntreeNumero: bonEntree.numero,
-        //   },
-        // });
-
         // Mise à jour prix produit
         await tx.product.update({
           where: { id: ligne.productId },
           data: {
             prixVente: ligne.prixVente,
-            prixVenteHT: ligne.prixVenteHT,
+            prixVenteHT: ligne.prixVenteHT || 0,
             prixAchat: ligne.prixUnitaireTTC,
             prixAchatHT: ligne.prixUnitaireHT,
             tva: ligne.tva,
@@ -409,7 +383,6 @@ export async function POST(req: NextRequest) {
         });
       }
 
-      // (Le reste du code pour les règlements fournisseurs reste identique)
       // Gérer les règlements fournisseurs
       if (paiements && paiements.length > 0 && fournisseurId) {
         if (paiements.length === 1) {
@@ -503,4 +476,4 @@ export async function POST(req: NextRequest) {
       { status: 500 }
     );
   }
-} 
+}
