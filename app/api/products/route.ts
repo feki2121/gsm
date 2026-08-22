@@ -67,7 +67,7 @@ export async function GET(req: NextRequest) {
         extraFields.dernierPrixVente = historiquePrix?.[0]?.prixVente || product.prixVenteHT;
         extraFields.derniereDateAchat = historiquePrix?.[0]?.dateApplication || null;
       }
- 
+
       return {
         ...product,
         stockParType: stockParTypeObj,
@@ -228,7 +228,7 @@ export async function POST(req: NextRequest) {
     let finalCode = code;
     if (!finalCode || finalCode.trim() === "") {
       const currentYear = new Date().getFullYear();
-      
+
       // Trouver le dernier code utilisé pour l'année en cours
       const lastProduct = await prisma.product.findFirst({
         where: {
@@ -240,7 +240,7 @@ export async function POST(req: NextRequest) {
           code: 'desc',
         },
       });
-      
+
       let nextNumber = 1;
       if (lastProduct && lastProduct.code) {
         const lastNumber = parseInt(lastProduct.code.split('-')[1]);
@@ -248,14 +248,14 @@ export async function POST(req: NextRequest) {
           nextNumber = lastNumber + 1;
         }
       }
-      
+
       finalCode = `${currentYear}-${String(nextNumber).padStart(4, '0')}`;
-      
+
       // Vérifier que le code généré n'existe pas déjà
       const codeExists = await prisma.product.findFirst({
         where: { code: finalCode }
       });
-      
+
       if (codeExists) {
         // En cas de collision (rare), incrémenter encore
         let counter = 1;
@@ -273,7 +273,7 @@ export async function POST(req: NextRequest) {
       const existingCode = await prisma.product.findFirst({
         where: { code: finalCode }
       });
-      
+
       if (existingCode) {
         return NextResponse.json(
           { error: 'Ce code produit existe déjà' },

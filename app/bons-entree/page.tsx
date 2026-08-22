@@ -113,7 +113,7 @@ export default function BonsEntreePage() {
     };
 
     const htmlBonEntree = generateBEPrintHTML(printData, format);
-    
+
     const printWindow = window.open('', '_blank', 'width=800,height=600');
     if (printWindow) {
       printWindow.document.write(`
@@ -140,45 +140,45 @@ export default function BonsEntreePage() {
     }
   };
 
-const handleDelete = async () => {
-  if (!deletingBE) return;
+  const handleDelete = async () => {
+    if (!deletingBE) return;
 
-  setIsDeleting(true);
-  try {
-    const response = await fetch(`/api/bons-entree/${deletingBE.id}`, {
-      method: "DELETE",
-    });
+    setIsDeleting(true);
+    try {
+      const response = await fetch(`/api/bons-entree/${deletingBE.id}`, {
+        method: "DELETE",
+      });
 
-    const data = await response.json();
+      const data = await response.json();
 
-    if (!response.ok) {
+      if (!response.ok) {
+        toast({
+          title: "Suppression impossible",
+          description: data.error || "Erreur lors de la suppression",
+          variant: "destructive",
+        });
+        return; // Ne pas fermer le dialogue si erreur
+      }
+
       toast({
-        title: "Suppression impossible",
-        description: data.error || "Erreur lors de la suppression",
+        title: "Succès",
+        description: "Bon d'entrée supprimé avec succès",
+      });
+
+      setDeleteDialogOpen(false);
+      setDeletingBE(null);
+      fetchBons(); // Rafraîchir la liste
+    } catch (error) {
+      console.error("Error deleting bon entree:", error);
+      toast({
+        title: "Erreur",
+        description: "Une erreur inattendue s'est produite",
         variant: "destructive",
       });
-      return; // Ne pas fermer le dialogue si erreur
+    } finally {
+      setIsDeleting(false);
     }
-
-    toast({
-      title: "Succès",
-      description: "Bon d'entrée supprimé avec succès",
-    });
-
-    setDeleteDialogOpen(false);
-    setDeletingBE(null);
-    fetchBons(); // Rafraîchir la liste
-  } catch (error) {
-    console.error("Error deleting bon entree:", error);
-    toast({
-      title: "Erreur",
-      description: "Une erreur inattendue s'est produite",
-      variant: "destructive",
-    });
-  } finally {
-    setIsDeleting(false);
-  }
-};
+  };
 
   const getTypeBadge = (type: string) => {
     const styles = {
@@ -215,17 +215,17 @@ const handleDelete = async () => {
       render: (item: BonEntree) => {
         return (
           <div className="flex gap-2">
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => handlePrintBonEntree(item)}
               title="Imprimer"
             >
               <FileText className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               onClick={() => {
                 setSelectedBEId(item.id);
                 setViewModalOpen(true);
@@ -234,16 +234,16 @@ const handleDelete = async () => {
             >
               <Eye className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
+            <Button
+              variant="ghost"
               size="icon"
               onClick={() => router.push(`/bons-entree/modifier/${item.id}`)}
             >
               <Edit className="h-4 w-4" />
             </Button>
-            <Button 
-              variant="ghost" 
-              size="icon" 
+            <Button
+              variant="ghost"
+              size="icon"
               className="text-red-600 hover:text-red-700"
               onClick={() => {
                 setDeletingBE(item);
@@ -327,7 +327,7 @@ const handleDelete = async () => {
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Annuler</AlertDialogCancel>
-            <AlertDialogAction 
+            <AlertDialogAction
               onClick={handleDelete}
               className="bg-destructive hover:bg-destructive/90"
               disabled={isDeleting}

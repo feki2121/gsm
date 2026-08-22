@@ -99,7 +99,11 @@ export async function GET(req: NextRequest) {
           },
           lignes: {
             include: {
-              product: true,
+              product: {
+                include: {
+                  category: true,
+                }
+              },
               home: true,
             }
           },
@@ -388,7 +392,7 @@ export async function POST(req: NextRequest) {
 
     const productMap = new Map(products.map(p => [p.id, p]));
 
-     const sousTotalTotal = lignes.reduce((sum: number, l: { productId: string; quantite: number; prixVente?: number }) => {
+    const sousTotalTotal = lignes.reduce((sum: number, l: { productId: string; quantite: number; prixVente?: number }) => {
       const prixUnitaire = l.prixVente ?? productMap.get(l.productId)?.prixVente ?? 0;
       return sum + prixUnitaire * l.quantite;
     }, 0);
@@ -415,7 +419,7 @@ export async function POST(req: NextRequest) {
       const depassement = montantRemiseDemande - plafondTotalAutorise;
       const pourcentageDepassement = (depassement / plafondTotalAutorise) * 100;
 
-       const remiseDetails = [];
+      const remiseDetails = [];
       for (const ligne of lignes) {
         const product = productMap.get(ligne.productId);
         if (product) {

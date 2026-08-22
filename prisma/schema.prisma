@@ -221,6 +221,7 @@ model Fournisseur {
   id                 String                 @id @default(cuid())
   nom                String
   telephone          String
+  matriculeFiscal    String?
   adresse            String?
   email              String?
   solde              Float                  @default(0)

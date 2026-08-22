@@ -39,7 +39,7 @@ export async function GET(req: NextRequest) {
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { nom, telephone, adresse, email, solde } = body;
+    const { nom, telephone, adresse, email, matriculeFiscal, solde } = body;
 
     if (!nom || !telephone) {
       return NextResponse.json(
@@ -54,6 +54,7 @@ export async function POST(req: NextRequest) {
         telephone,
         adresse,
         email,
+        matriculeFiscal,
         solde: solde || 0,
       },
     });

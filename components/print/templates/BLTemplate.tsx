@@ -182,6 +182,10 @@ export const BLTemplate: React.FC<BLTemplateProps> = ({
 
     const hideSociete = copieType === "CLIENT";
 
+
+    const showCodeColumn = data.lignes.some(
+        (ligne) => ligne.product?.category?.nom === "TELEPHONE"
+    );
     const TicketContent = () => (
         <div className="ticket-print">
             <style>{ticketGlobalStyles}</style>
@@ -247,6 +251,7 @@ export const BLTemplate: React.FC<BLTemplateProps> = ({
                 <thead>
                     <tr>
                         <th style={{ width: '50%', fontSize: 13, fontWeight: '900 !important' }}>ARTICLE</th>
+                        {showCodeColumn && <th style={{ width: '15%', fontSize: 13, fontWeight: '900 !important' }}>CODE</th>}
                         <th style={{ width: '15%', fontSize: 13, fontWeight: '900 !important' }} className="text-center">QTE</th>
                         <th style={{ width: '17%', fontSize: 13, fontWeight: '900 !important' }} className="text-right">PU</th>
                         <th style={{ width: '18%', fontSize: 13, fontWeight: '900 !important' }} className="text-right">TOTAL</th>
@@ -261,6 +266,11 @@ export const BLTemplate: React.FC<BLTemplateProps> = ({
                                 <td className="product-designation" style={{ wordWrap: 'break-word', whiteSpace: 'normal', wordBreak: 'break-word', fontSize: 13 }}>
                                     {designation}
                                 </td>
+                                {showCodeColumn && (
+                                    <td style={{ fontSize: 13 }}>
+                                        {ligne.product?.category?.nom === "TELEPHONE" ? ligne.product?.code || "-" : ""}
+                                    </td>
+                                )}
                                 <td className="text-center" style={{ fontSize: 13 }}>{ligne.quantite}</td>
                                 <td className="text-right" style={{ fontSize: 13 }}>
                                     {ligne.prixUnitaire?.toFixed(3) || "0.000"}
@@ -402,6 +412,7 @@ export const BLTemplate: React.FC<BLTemplateProps> = ({
                 <thead>
                     <tr>
                         <th>Désignation</th>
+                        {showCodeColumn && <th>Code</th>}
                         <th className="text-center">Qté</th>
                         <th className="text-right">P.U</th>
                         <th className="text-right">Total</th>
@@ -413,6 +424,11 @@ export const BLTemplate: React.FC<BLTemplateProps> = ({
                             <td style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>
                                 {ligne.product?.designation || "-"}
                             </td>
+                            {showCodeColumn && (
+                                <td style={{ wordWrap: 'break-word', whiteSpace: 'normal' }}>
+                                    {ligne.product?.category?.nom === "TELEPHONE" ? ligne.product?.code || "-" : ""}
+                                </td>
+                            )}
                             <td className="text-center">{ligne.quantite}</td>
                             <td className="text-right">{ligne.prixUnitaire?.toFixed(3) || "0.000"}</td>
                             <td className="text-right">

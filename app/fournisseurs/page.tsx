@@ -46,6 +46,7 @@ export default function FournisseursPage() {
     nom: "",
     telephone: "",
     email: "",
+    matriculeFiscal: "",
     adresse: "",
   });
   const { toast } = useToast();
@@ -79,7 +80,7 @@ export default function FournisseursPage() {
   };
 
   const resetForm = () => {
-    setFormData({ nom: "", telephone: "", email: "", adresse: "" });
+    setFormData({ nom: "", telephone: "", matriculeFiscal: "", email: "", adresse: "" });
     setEditingFournisseur(null);
   };
 
@@ -88,6 +89,7 @@ export default function FournisseursPage() {
     setFormData({
       nom: fournisseur.nom,
       telephone: fournisseur.telephone,
+      matriculeFiscal: fournisseur.matriculeFiscal || "",
       email: fournisseur.email || "",
       adresse: fournisseur.adresse || "",
     });
@@ -220,6 +222,15 @@ const handleDelete = async (id: string, nom: string) => {
         <div className="flex items-center gap-2">
           <Phone className="h-4 w-4 text-muted-foreground" />
           <span>{item.telephone}</span>
+        </div>
+      ),
+    },
+    {
+      key: "matriculeFiscal" as keyof Fournisseur,
+      header: "Matricule Fiscal",
+      render: (item: Fournisseur) => (
+        <div className="flex items-center gap-2">
+          <span>{item.matriculeFiscal}</span>
         </div>
       ),
     },
@@ -372,6 +383,17 @@ const handleDelete = async (id: string, nom: string) => {
                             required
                           />
                         </div>
+                         <div className="space-y-2">
+                          <Label htmlFor="matriculeFiscal">matricule Fiscal</Label>
+                          <Input 
+                            id="matriculeFiscal" 
+                            placeholder="XXXXXXX" 
+                            value={formData.matriculeFiscal}
+                            onChange={handleInputChange}
+                            required
+                          />
+                        </div>
+                        
                         <div className="space-y-2">
                           <Label htmlFor="email">Email</Label>
                           <Input 
@@ -462,6 +484,12 @@ const handleDelete = async (id: string, nom: string) => {
                   <p className="text-sm text-muted-foreground">Téléphone</p>
                   <p className="font-medium">{viewingFournisseur.telephone}</p>
                 </div>
+                
+                <div className="border-b pb-2">
+                  <p className="text-sm text-muted-foreground">Matricule Fiscal</p>
+                  <p className="font-medium">{viewingFournisseur.matriculeFiscal}</p>
+                </div>
+                
                 
                 <div className="border-b pb-2">
                   <p className="text-sm text-muted-foreground">Email</p>

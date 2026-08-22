@@ -67,6 +67,11 @@ export interface BLPrintData {
         product?: {
             reference: string;
             designation: string;
+            code: string;
+            category?: {
+                nom: string;
+            };
+            categoryId?: string;
         };
         home?: {
             nom: string;
@@ -98,6 +103,7 @@ export interface BEPrintData {
             id?: string;
             reference: string;
             designation: string;
+            code: string;
             prixAchat?: number;
         };
         quantite: number;

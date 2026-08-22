@@ -68,9 +68,13 @@ interface Product {
   id: string;
   reference: string;
   designation: string;
+  code: string;
   prixVente: number;
   prixVenteHT: number;
   quantiteStock: number;
+  category?: {
+    nom: string;
+  };
   stockLocations?: Array<{
     homeId: string;
     quantite: number;
@@ -462,8 +466,27 @@ export default function BonsLivraisonPage() {
     }
   };
 
-  const handlePrintBL = (bonLivraison: BonLivraison, format: PrintFormat = "A4") => {
+const handlePrintBL = (bonLivraison: BonLivraison, format: PrintFormat = "A4") => {
+    console.log('🔍 === START handlePrintBL ===');
+    console.log('📦 BonLivraison:', {
+      id: bonLivraison.id,
+      numero: bonLivraison.numero,
+      lignesCount: bonLivraison.lignes.length
+    });
+
     const clientAddress = bonLivraison.client?.addresses?.find(addr => addr.estPrincipale) || bonLivraison.client?.addresses?.[0];
+
+    // DEBUG: Afficher les catégories des produits avant le mapping
+    console.log('📊 Produits avant mapping:');
+    bonLivraison.lignes.forEach((ligne, index) => {
+      console.log(`  Ligne ${index + 1}:`, {
+        designation: ligne.product?.designation,
+        code: ligne.product?.code,
+        category: ligne.product?.category,
+        categoryNom: ligne.product?.category?.nom,
+        hasCategory: !!ligne.product?.category
+      });
+    });
 
     const printData: BLPrintData = {
       id: bonLivraison.id,
@@ -487,16 +510,34 @@ export default function BonsLivraisonPage() {
           ? (ligne as any).prixVente
           : ligne.product?.prixVente ?? 0;
 
-        return {
+        // DEBUG: Afficher chaque ligne après mapping
+        const mappedLine = {
           product: ligne.product ? {
             reference: ligne.product.reference,
             designation: ligne.product.designation,
+            code: ligne.product.code,
+            category: ligne.product.category,
+            // DEBUG: Vérifier si category est bien présent
+            categoryDebug: {
+              exists: !!ligne.product.category,
+              nom: ligne.product.category?.nom,
+              type: typeof ligne.product.category
+            }
           } : undefined,
           home: ligne.home ? { nom: ligne.home.nom } : undefined,
           quantite: ligne.quantite,
           prixUnitaire: prixVente,
           totalLigne: ligne.quantite * prixVente,
         };
+
+        console.log(`📝 Ligne ${bonLivraison.lignes.indexOf(ligne) + 1} après mapping:`, {
+          designation: mappedLine.product?.designation,
+          code: mappedLine.product?.code,
+          categoryNom: mappedLine.product?.category?.nom,
+          hasCategory: !!mappedLine.product?.category
+        });
+
+        return mappedLine;
       }),
       totalHT: bonLivraison.montantHT || 0,
       totalTVA: bonLivraison.montantTVA || 0,
@@ -505,6 +546,26 @@ export default function BonsLivraisonPage() {
       montantCredit: bonLivraison.montantCredit || 0,
       remise: bonLivraison.remise,
     };
+
+    // DEBUG: Afficher les données finales envoyées au template
+    console.log('📋 Données finales printData:');
+    console.log('  Total lignes:', printData.lignes.length);
+    printData.lignes.forEach((ligne, index) => {
+      console.log(`  Ligne ${index + 1}:`, {
+        designation: ligne.product?.designation,
+        code: ligne.product?.code,
+        category: ligne.product?.category?.nom,
+        hasCategory: !!ligne.product?.category
+      });
+    });
+
+    // DEBUG: Vérifier si au moins un produit est TELEPHONE
+    const hasTelephone = printData.lignes.some(
+      ligne => ligne.product?.category?.nom === "TELEPHONE"
+    );
+    console.log('📱 Has TELEPHONE product:', hasTelephone);
+
+    console.log('🔍 === END handlePrintBL ===');
 
     const htmlSociete = generateBLPrintHTML(printData, format, 'SOCIETE');
     const htmlClient = generateBLPrintHTML(printData, format, 'CLIENT');
@@ -537,8 +598,7 @@ export default function BonsLivraisonPage() {
     `);
       printWindow.document.close();
     }
-  };
-
+};
   const handlePrintTicket = (bonLivraison: BonLivraison, copieType: 'SOCIETE' | 'CLIENT') => {
     const clientAddress = bonLivraison.client?.addresses?.find(addr => addr.estPrincipale) || bonLivraison.client?.addresses?.[0];
 
@@ -567,6 +627,8 @@ export default function BonsLivraisonPage() {
           product: ligne.product ? {
             reference: ligne.product.reference,
             designation: ligne.product.designation,
+            code: ligne.product.code,
+            category: ligne.product.category,
           } : undefined,
           home: ligne.home ? { nom: ligne.home.nom } : undefined,
           quantite: ligne.quantite,
@@ -641,6 +703,8 @@ export default function BonsLivraisonPage() {
           product: ligne.product ? {
             reference: ligne.product.reference,
             designation: ligne.product.designation,
+            code: ligne.product.code,
+            category: ligne.product.category,
           } : undefined,
           home: ligne.home ? { nom: ligne.home.nom } : undefined,
           quantite: ligne.quantite,

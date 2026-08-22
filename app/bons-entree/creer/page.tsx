@@ -1090,7 +1090,7 @@ export default function CreerBonEntreePage() {
                         </div>
                         <div className="grid gap-3 sm:grid-cols-2">
                           <div className="space-y-1">
-                            <Label className="text-xs">Référence *</Label>
+                            <Label className="text-xs">Modèle *</Label>
                             <Input
                               placeholder="REF-001"
                               value={newProductData.reference}
@@ -1101,7 +1101,7 @@ export default function CreerBonEntreePage() {
 
                           <div className="space-y-1">
                             <Label className="text-xs">
-                              Code
+                              Code à barre
                               <span className="text-muted-foreground ml-1 text-xs">
                                 (laissez vide pour auto-génération)
                               </span>
@@ -1114,7 +1114,7 @@ export default function CreerBonEntreePage() {
                             />
                           </div>
                           <div className="space-y-1">
-                            <Label className="text-xs">Désignation *</Label>
+                            <Label className="text-xs">Nom du produit *</Label>
                             <Input
                               placeholder="Nom du produit"
                               value={newProductData.designation}

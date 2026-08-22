@@ -181,6 +181,7 @@ export interface Fournisseur {
   id: string;
   nom: string;
   telephone: string;
+  matriculeFiscal? : string;
   adresse?: string;
   email?: string;
   solde: number;
