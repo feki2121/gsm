@@ -384,12 +384,6 @@ export default function BonsLivraisonPage() {
 
 
   const applyFilters = () => {
-    console.log('Application des filtres:');
-    console.log('tempDateDebut:', tempDateDebut);
-    console.log('tempDateFin:', tempDateFin);
-    console.log('tempClientId:', tempClientId);
-    console.log('tempHome:', tempHome);
-
     setActiveDateDebut(tempDateDebut);
     setActiveDateFin(tempDateFin);
     setActiveClientId(tempClientId);
@@ -546,27 +540,7 @@ const handlePrintBL = (bonLivraison: BonLivraison, format: PrintFormat = "A4") =
       montantCredit: bonLivraison.montantCredit || 0,
       remise: bonLivraison.remise,
     };
-
-    // DEBUG: Afficher les données finales envoyées au template
-    console.log('📋 Données finales printData:');
-    console.log('  Total lignes:', printData.lignes.length);
-    printData.lignes.forEach((ligne, index) => {
-      console.log(`  Ligne ${index + 1}:`, {
-        designation: ligne.product?.designation,
-        code: ligne.product?.code,
-        category: ligne.product?.category?.nom,
-        hasCategory: !!ligne.product?.category
-      });
-    });
-
-    // DEBUG: Vérifier si au moins un produit est TELEPHONE
-    const hasTelephone = printData.lignes.some(
-      ligne => ligne.product?.category?.nom === "TELEPHONE"
-    );
-    console.log('📱 Has TELEPHONE product:', hasTelephone);
-
-    console.log('🔍 === END handlePrintBL ===');
-
+    
     const htmlSociete = generateBLPrintHTML(printData, format, 'SOCIETE');
     const htmlClient = generateBLPrintHTML(printData, format, 'CLIENT');
 
@@ -932,7 +906,6 @@ const handlePrintBL = (bonLivraison: BonLivraison, format: PrintFormat = "A4") =
                             mode="single"
                             selected={tempDateDebut}
                             onSelect={(date) => {
-                              console.log('Date début sélectionnée:', date);
                               setTempDateDebut(date);
                             }}
                             initialFocus
