@@ -118,6 +118,7 @@ export default function CreerBonLivraisonPage() {
 
   // AJOUTER ICI
   const [searchType, setSearchType] = useState<'designation' | 'reference' | 'code'>('designation');
+  const [codeScanValues, setCodeScanValues] = useState<Record<number, string>>({});
 
   // États pour le règlement
   const [paiements, setPaiements] = useState<PaiementDetail[]>([
@@ -670,6 +671,32 @@ export default function CreerBonLivraisonPage() {
     setLignes(newLignes);
   };
 
+  const handleCodeScan = (index: number, event: React.KeyboardEvent) => {
+    if (event.key !== 'Enter') return;
+
+    const scannedCode = codeScanValues[index]?.trim();
+    if (!scannedCode) return;
+
+    event.preventDefault();
+    event.stopPropagation();
+
+    const product = products.find(
+      candidate => candidate.code.trim().toLowerCase() === scannedCode.toLowerCase()
+    );
+
+    if (!product) {
+      toast({
+        title: "Produit introuvable",
+        description: `Aucun produit ne correspond au code "${scannedCode}"`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    updateLigne(index, 'productId', product.id);
+    setCodeScanValues(prev => ({ ...prev, [index]: "" }));
+  };
+
   const fetchClients = async () => {
     try {
       const response = await fetch("/api/clients?includeProspects=true");
@@ -1028,9 +1055,9 @@ export default function CreerBonLivraisonPage() {
                       <Table>
                         <TableHeader>
                           <TableRow>
-                            <TableHead>Désignation</TableHead>
-                            <TableHead>Référence</TableHead>
                             <TableHead>Code</TableHead>
+                            <TableHead>Référence</TableHead>
+                            <TableHead>Désignation</TableHead>
                             {userRole === 'ADMIN' && <TableHead>Emplacement</TableHead>}
                             <TableHead>Quantité</TableHead>
                             <TableHead>TVA</TableHead>
@@ -1042,14 +1069,31 @@ export default function CreerBonLivraisonPage() {
                         <TableBody>
                           {lignes.map((ligne, idx) => (
                             <TableRow key={ligne.id}>
-                              {/* Colonne Désignation - affiche la désignation */}
-                              <TableCell className="min-w-[200px]">
+
+                              {/* Colonne Code - affiche le code */}
+                              <TableCell className="min-w-[150px]">
                                 {isMounted && (
                                   <Select2
-                                    options={designationOptions()}
-                                    value={designationOptions().find(o => o.value === ligne.productId) || null}
-                                    onChange={(selected: any) => updateLigne(idx, 'productId', selected?.value || "")}
-                                    placeholder="Désignation"
+                                    options={codeOptions()}
+                                    inputValue={codeScanValues[idx] || ""}
+                                    onInputChange={(value, actionMeta) => {
+                                      if (actionMeta.action === 'input-change') {
+                                        setCodeScanValues(prev => ({ ...prev, [idx]: value }));
+                                      }
+                                      return value;
+                                    }}
+                                    onKeyDown={(event) => handleCodeScan(idx, event)}
+                                    value={(() => {
+                                      const option = codeOptions().find(o => o.value === ligne.productId);
+                                      return option ? { value: option.value, label: option.label } : null;
+                                    })()}
+                                    onChange={(selected: any) => {
+                                      updateLigne(idx, 'productId', selected?.value || "");
+                                      if (selected?.data) {
+                                        updateLigne(idx, 'prixVente', selected.data.prixVente);
+                                      }
+                                    }}
+                                    placeholder="Code"
                                     isSearchable
                                     isClearable
                                     className="text-sm"
@@ -1058,15 +1102,9 @@ export default function CreerBonLivraisonPage() {
                                     styles={selectStyles}
                                   />
                                 )}
-                                {/* Afficher la désignation sélectionnée */}
-                                {ligne.product && (
-                                  <div className="text-xs text-green-600 mt-1 hidden">
-                                    {ligne.product.designation}
-                                  </div>
-                                )}
                               </TableCell>
 
-                              {/* Colonne Référence - affiche la référence */}
+                               {/* Colonne Référence - affiche la référence */}
                               <TableCell className="min-w-[150px]">
                                 {isMounted && (
                                   <Select2
@@ -1093,22 +1131,14 @@ export default function CreerBonLivraisonPage() {
                                 )}
                               </TableCell>
 
-                              {/* Colonne Code - affiche le code */}
-                              <TableCell className="min-w-[150px]">
+                               {/* Colonne Désignation - affiche la désignation */}
+                              <TableCell className="min-w-[200px]">
                                 {isMounted && (
                                   <Select2
-                                    options={codeOptions()}
-                                    value={(() => {
-                                      const option = codeOptions().find(o => o.value === ligne.productId);
-                                      return option ? { value: option.value, label: option.label } : null;
-                                    })()}
-                                    onChange={(selected: any) => {
-                                      updateLigne(idx, 'productId', selected?.value || "");
-                                      if (selected?.data) {
-                                        updateLigne(idx, 'prixVente', selected.data.prixVente);
-                                      }
-                                    }}
-                                    placeholder="Code"
+                                    options={designationOptions()}
+                                    value={designationOptions().find(o => o.value === ligne.productId) || null}
+                                    onChange={(selected: any) => updateLigne(idx, 'productId', selected?.value || "")}
+                                    placeholder="Désignation"
                                     isSearchable
                                     isClearable
                                     className="text-sm"
@@ -1117,8 +1147,13 @@ export default function CreerBonLivraisonPage() {
                                     styles={selectStyles}
                                   />
                                 )}
+                                {/* Afficher la désignation sélectionnée */}
+                                {ligne.product && (
+                                  <div className="text-xs text-green-600 mt-1 hidden">
+                                    {ligne.product.designation}
+                                  </div>
+                                )}
                               </TableCell>
-
 
                               {/* Colonne Emplacement */}
                               {userRole === 'ADMIN' && (
