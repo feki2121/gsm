@@ -82,7 +82,7 @@ export function Sidebar() {
       ],
     },] : []),
     {
-      title: "Ventes",
+      title: "Ventesss",
       icon: ShoppingCart,
       children: [
         // { title: "Clients Prospects", href: "/clientsprospects/clients?seulementProspects=true" },
