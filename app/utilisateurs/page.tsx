@@ -146,7 +146,7 @@ export default function UtilisateursPage() {
     return (
       <Badge className="bg-blue-100 text-blue-800 hover:bg-blue-100">
         <Truck className="h-3 w-3 mr-1" />
-        Chauffeur
+        Utilisateur
       </Badge>
     );
   };
@@ -183,7 +183,7 @@ export default function UtilisateursPage() {
                 <SelectContent>
                   <SelectItem value="TOUS">Tous les rôles</SelectItem>
                   <SelectItem value="ADMIN">Administrateurs</SelectItem>
-                  <SelectItem value="CHAUFFEUR">Chauffeurs</SelectItem>
+                  <SelectItem value="CHAUFFEUR">Utilisateurs</SelectItem>
                 </SelectContent>
               </Select>
             </div>

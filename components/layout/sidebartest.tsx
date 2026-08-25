@@ -85,7 +85,7 @@ export function Sidebar() {
       title: "Ventes",
       icon: ShoppingCart,
       children: [
-        { title: "Clients Prospects", href: "/clientsprospects/clients?seulementProspects=true" },
+        // { title: "Clients Prospects", href: "/clientsprospects/clients?seulementProspects=true" },
         { title: "Clients", href: "/clients" },
         { title: "Devis", href: "/devis" },
         { title: "Bons de Livraison", href: "/bons-livraison" },
@@ -117,13 +117,13 @@ export function Sidebar() {
         { title: "Inventaires", href: "/inventaires" },
       ],
     },
-    {
-      title: "Logistique",
-      icon: Truck,
-      children: [
-        { title: "Tournée", href: "/tournees" },
-      ],
-    },
+    // {
+    //   title: "Logistique",
+    //   icon: Truck,
+    //   children: [
+    //     { title: "Tournée", href: "/tournees" },
+    //   ],
+    // },
     {
       title: "Finances",
       icon: Landmark,
@@ -141,8 +141,8 @@ export function Sidebar() {
       title: "Paramètres",
       icon: Settings,
       children: [
-        { title: "Emplacements", href: "/emplacements" },
-        { title: "Véhicules", href: "/vehicules" },
+        { title: "Entrepôts", href: "/emplacements" },
+        { title: "Boutiques", href: "/vehicules" },
         { title: "Utilisateurs", href: "/utilisateurs" },
         { title: "Chauffeurs", href: "/chauffeurs" },
       ],

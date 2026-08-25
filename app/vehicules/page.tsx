@@ -70,7 +70,7 @@ export default function VehiculesPage() {
       setVehicules(data.data || []);
     } catch (error) {
       console.error("Error fetching vehicules:", error);
-      toast({ title: "Erreur", description: "Impossible de charger les véhicules", variant: "destructive" });
+      toast({ title: "Erreur", description: "Impossible de charger les Boutiques", variant: "destructive" });
     } finally {
       setIsLoading(false);
     }
@@ -102,13 +102,13 @@ export default function VehiculesPage() {
         throw new Error(error.error || "Erreur lors de la création");
       }
 
-      toast({ title: "Succès", description: "Véhicule créé avec succès" });
+      toast({ title: "Succès", description: "Boutique créé avec succès" });
       setIsDialogOpen(false);
       resetForm();
       fetchVehicules();
     } catch (error) {
       console.error("Error creating vehicule:", error);
-      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de créer le véhicule", variant: "destructive" });
+      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de créer le Boutique", variant: "destructive" });
     } finally {
       setIsSubmitting(false);
     }
@@ -118,13 +118,13 @@ export default function VehiculesPage() {
     if (chauffeursCount > 0) {
       toast({
         title: "Impossible de supprimer",
-        description: `Ce véhicule a ${chauffeursCount} chauffeur(s) assigné(s). Veuillez d'abord réassigner les chauffeurs.`,
+        description: `Ce Boutique a ${chauffeursCount} chauffeur(s) assigné(s). Veuillez d'abord réassigner les chauffeurs.`,
         variant: "destructive",
       });
       return;
     }
 
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer le véhicule "${nom}" ?`)) return;
+    if (!confirm(`Êtes-vous sûr de vouloir supprimer le Boutique "${nom}" ?`)) return;
 
     try {
       const response = await fetch(`/api/vehicules/${id}`, {
@@ -136,11 +136,11 @@ export default function VehiculesPage() {
         throw new Error(error.error || "Erreur lors de la suppression");
       }
 
-      toast({ title: "Succès", description: "Véhicule supprimé avec succès" });
+      toast({ title: "Succès", description: "Boutique supprimé avec succès" });
       fetchVehicules();
     } catch (error) {
       console.error("Error deleting vehicule:", error);
-      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de supprimer le véhicule", variant: "destructive" });
+      toast({ title: "Erreur", description: error instanceof Error ? error.message : "Impossible de supprimer le Boutique", variant: "destructive" });
     }
   };
 
@@ -164,7 +164,7 @@ export default function VehiculesPage() {
       <div className="flex min-h-screen bg-background flex-col md:flex-row">
         <Sidebar />
         <div className={cn("flex-1 transition-all duration-300", sidebarClasses)}>
-          <Header title="Véhicules" subtitle="Gestion des véhicules de livraison" />
+          <Header title="Boutiques" subtitle="Gestion des Boutiques de livraison" />
           <main className="flex items-center justify-center h-[calc(100vh-73px)]">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </main>
@@ -177,30 +177,30 @@ export default function VehiculesPage() {
     <div className="flex min-h-screen bg-background flex-col md:flex-row">
       <Sidebar />
       <div className={cn("flex-1 transition-all duration-300", sidebarClasses)}>
-        <Header title="Véhicules" subtitle="Gestion des véhicules de livraison" />
+        <Header title="Boutiques" subtitle="Gestion des Boutiques de livraison" />
         <main className="p-4 md:p-6">
           <Card>
             <CardHeader className="flex flex-row items-center justify-between">
               <CardTitle className="flex items-center gap-2">
                 <Truck className="h-5 w-5 text-primary" />
-                Liste des Véhicules
+                Liste des Boutiques
               </CardTitle>
               <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                 <DialogTrigger asChild>
                   <Button onClick={resetForm}>
                     <Plus className="mr-2 h-4 w-4" />
-                    Nouveau Véhicule
+                    Nouveau Boutique
                   </Button>
                 </DialogTrigger>
                 <DialogContent>
                   <DialogHeader>
                     <DialogTitle>
-                      {selectedVehicule ? "Modifier le Véhicule" : "Ajouter un Véhicule"}
+                      {selectedVehicule ? "Modifier le Boutique" : "Ajouter un Boutique"}
                     </DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleSubmit} className="space-y-4">
                     <div className="space-y-2">
-                      <Label htmlFor="immatricule">Immatriculation *</Label>
+                      <Label htmlFor="immatricule">Code boutique *</Label>
                       <Input
                         id="immatricule"
                         placeholder="123-TUN-456"
@@ -210,7 +210,7 @@ export default function VehiculesPage() {
                       />
                     </div>
                     <div className="space-y-2">
-                      <Label htmlFor="nom">Nom du véhicule *</Label>
+                      <Label htmlFor="nom">Nom du Boutique *</Label>
                       <Input
                         id="nom"
                         placeholder="Camion 1, Fourgonnette, etc."
@@ -261,10 +261,10 @@ export default function VehiculesPage() {
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Immatriculation</TableHead>
+                      <TableHead>Code boutique</TableHead>
                       <TableHead>Nom</TableHead>
                       <TableHead>Entrepôt</TableHead>
-                      <TableHead>Chauffeurs</TableHead>
+                      <TableHead>Utilisateur</TableHead>
                       <TableHead>Description</TableHead>
                       <TableHead>Date d'ajout</TableHead>
                       <TableHead className="w-[100px]">Actions</TableHead>
@@ -296,7 +296,7 @@ export default function VehiculesPage() {
                               ))}
                             </div>
                           ) : (
-                            <span className="text-muted-foreground text-sm">Aucun chauffeur</span>
+                            <span className="text-muted-foreground text-sm">Aucune Boutique</span>
                           )}
                         </TableCell>
                         <TableCell className="text-muted-foreground text-sm max-w-[200px] truncate">
@@ -325,7 +325,7 @@ export default function VehiculesPage() {
                     {vehicules.length === 0 && (
                       <TableRow>
                         <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
-                          Aucun véhicule trouvé
+                          Aucun Boutique trouvé
                         </TableCell>
                       </TableRow>
                     )}

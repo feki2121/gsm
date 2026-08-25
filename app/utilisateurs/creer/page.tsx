@@ -156,7 +156,7 @@ export default function CreerUtilisateurPage() {
 
       toast({
         title: "Succès",
-        description: `${formData.role === "CHAUFFEUR" ? "Chauffeur" : "Administrateur"} créé avec succès\nMot de passe: ${formData.password}`,
+        description: `${formData.role === "CHAUFFEUR" ? "Utilisateur" : "Administrateur"} créé avec succès\nMot de passe: ${formData.password}`,
       });
 
       router.push("/utilisateurs");
@@ -259,7 +259,7 @@ export default function CreerUtilisateurPage() {
                           <SelectItem value="CHAUFFEUR">
                             <div className="flex items-center gap-2">
                               <Truck className="h-4 w-4" />
-                              Chauffeur
+                              Utilisateur
                             </div>
                           </SelectItem>
                           <SelectItem value="ADMIN">
@@ -274,13 +274,13 @@ export default function CreerUtilisateurPage() {
 
                     {formData.role === "CHAUFFEUR" && (
                       <div className="space-y-2">
-                        <Label htmlFor="vehiculeId">Véhicule *</Label>
+                        <Label htmlFor="vehiculeId">Boutique *</Label>
                         {isMounted && (
                           <Select2
                             options={vehiculeOptions}
                             value={vehiculeOptions.find(o => o.value === formData.vehiculeId) || null}
                             onChange={(selected: any) => setFormData(prev => ({ ...prev, vehiculeId: selected?.value || "" }))}
-                            placeholder="Sélectionner un véhicule"
+                            placeholder="Sélectionner une boutique"
                             isSearchable
                             isClearable
                             className="text-sm"
